@@ -39,16 +39,22 @@ def training_pipeline():
     def prepare_data(raw_data_path: str):
         # Read raw data
         print("Reading CSV file")
-        raw_data = pd.read_csv(raw_data_path, index_col="id").sample(100)
+        raw_data = pd.read_csv(raw_data_path, index_col="id")
+        print("Raw data shape")
+        print(raw_data.shape)
         print("Raw data shape:", raw_data.shape)
         # Apply data preprocessing
         print("Applying transformations")
         X = preprocessing_pipeline.fit_transform(raw_data.drop("Response", axis=1))
         y = raw_data["Response"]
+        print("X shape:", X.shape)
+        print("y shape:", y.shape)
         # Resample data
         print("Resampling data")
         smo = SMOTE()
         X_res, y_res = smo.fit_resample(X, y)
+        print("X_res shape:", X_res.shape)
+        print("y_res shape", y_res.shape)
 
         # Format training data
         print("Loading data to disk")
@@ -58,6 +64,7 @@ def training_pipeline():
         )
         training_data.to_csv(training_data_file_path, header=False, index=False)
         print("Training data file path:", training_data_file_path)
+        print("training data shape:", training_data.shape)
         return training_data_file_path
 
     @task
@@ -99,7 +106,7 @@ def training_pipeline():
         sklearn_model = SKLearn(
             entry_point=script_path,
             framework_version="1.2-1",
-            instance_type="ml.c5.xlarge",
+            instance_type="ml.c5.2xlarge",
             sagemaker_session=sagemaker_session,
             role="arn:aws:iam::867991991201:role/test-role-for-sagemaker",
         )
