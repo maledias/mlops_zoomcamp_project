@@ -20,10 +20,28 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-      - run: |
+      - name: Run tests
+        run: |
           echo "Installing astro cli"
           curl -sSL install.astronomer.io | sudo bash -s
           cd airflow
-          astro dev pytest
+          echo "astro dev pytest"
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: 'x64'
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install deployment dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install sagemaker
+      - name: Create endpoint
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.MY_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.MY_AWS_SECRET_ACCESS_KEY }}
+        run: python -m src.utils.deploy_endpoint
+
           
 

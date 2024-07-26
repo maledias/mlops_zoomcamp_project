@@ -106,7 +106,12 @@ def training_pipeline():
         sklearn_model.fit({"train": training_data_s3_path})
         print(sklearn_model)
         print(vars(sklearn_model))
-        return sklearn_model.model_data
+        return (
+            sklearn_model.model_data,
+            sklearn_model.role,
+            sklearn_model.entry_point,
+            sklearn_model.framework_version,
+        )
 
     train_model(upload_training_data_to_s3(prepare_data(get_training_data())))
 
