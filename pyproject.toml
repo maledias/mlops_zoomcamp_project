@@ -18,6 +18,8 @@ boto3 = "^1.34.145"
 virtualenv = "^20.26.3"
 sagemaker = "^2.226.1"
 pre-commit = "^3.7.1"
+apache-airflow = "^2.9.3"
+pytest = "^8.3.2"
 
 
 [tool.poetry.group.setup.dependencies]

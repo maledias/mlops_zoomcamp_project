@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  Explore-GitHub-Actions:
+  create_model_endpoint:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -20,3 +20,10 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: |
+          echo "Installing astro cli"
+          curl -sSL install.astronomer.io | sudo bash -s
+          cd airflow
+          astro dev pytest
+          
+
