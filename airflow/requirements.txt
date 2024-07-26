@@ -1,0 +1,6 @@
+# Astro Runtime includes the following pre-installed providers packages: https://docs.astronomer.io/astro/runtime-image-architecture#provider-packages
+apache-airflow-providers-amazon==8.26.0
+pandas==2.2.2
+scikit-learn==1.5.1
+sagemaker==2.226.1
+imbalanced-learn==0.12.3
