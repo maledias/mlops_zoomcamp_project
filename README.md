@@ -82,24 +82,29 @@ In order to reproduce the project, you will need to fulfill the following requir
 - Install [Docker](https://docs.docker.com/engine/install/)
 
 ## Step-by-step process
-1. Fork the repository and `cd` to the project directory.
+1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) the repository and `cd` to the project directory.
 2. Run `poetry install` to install the project Python dependencies.
+3. Init terraform
+    - `cd` into the `terraform/dev/` directory and run `terraform init` to initialize the terraform project.
 3. In the project root directory, run `make download_data` to download the data directly from Kaggle. This will create a new `data/` directory in your project's root directory.
 4. Setup the development infrastructure
     - IMPORTANT: Make sure that you have a default profile conigured for the AWS CLI, otherwise the following step will not work. 
     - Edit the `terraform/dev/main.tf` file and edit line 16, to give a name to the S3 Bucket used to store the artifacts generated during the project development. You must follow the S3 Bucket [naming conventions](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).
-    - Run `make create_dev_setup`. This will create a new S3 Bucket in your AWS account, and will also copy the data files to it.
+    - Run `make create_dev_setup`. This will create a new S3 Bucket in your AWS account.
+    - Run `make copy_data_to_s3` to copy the data the S3 Bucket just created.
 5. Start the MLFlow server by running `make start_mlflow_server`.
     - IMPORTANT: this command will only work if you have run the previous step successfully, because it depends on the S3 Bucket.
     - IMPORTANT: the command will block your terminal. To run other the next commands, you will need to create a new terminal instance.
 6. Open the jupyter notebook in `notebooks/insurance_cross_sell_prediction.ipynb` and run all cells to create experiments, models, and track it using the MLFlow tracking system and model registry.
     - IMPORTANT: this command will only work if you have run the previous step successfully, because it dependes on the MLFlow server.
+7. Open the `airflow/dags/training_pipeline.py` file and update the 15th line, with the name of the S3 Bucket where the data has been update. (this refers to the Bucket create in step 4)
 7. Start the Airflow server
     - `cd` to the `airflow` directory and run `astro dev start` to start the Airflow server.
 8. Access the Airflow UI available at 127.0.0.1:8081 and login using the default credentials. Default login: `admin`, default password: `admin`.
 9. Configure a new AWS connection using your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
     - Navigate to Admin -> Connections and click on the `+` symbol to create a new connection
     - Fill in the connection id as `my_aws_conn` (the code looks for a connection with this ID, so the it must be exactly like that)
+    - Select `Amazon Web Services` in the Connection Type field.
     - Fill in the `AWS Access Key ID` field with your access key id.
     - Fill in the `AWS Secret Access Key` field with your secret access key.
     - Save the connection
