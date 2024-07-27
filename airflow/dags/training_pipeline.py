@@ -12,7 +12,7 @@ from imblearn.over_sampling import SMOTE
 from include.dataprep.dataprep import preprocessing_pipeline
 from sagemaker.sklearn.estimator import SKLearn
 
-BUCKET_NAME = "mlops-zoomcamp-proj-mlflow-artifacts-bucket-20240724"
+BUCKET_NAME = "YOUR_BUCKET_NAME"
 
 
 @dag(
@@ -108,7 +108,7 @@ def training_pipeline():
             framework_version="1.2-1",
             instance_type="ml.c5.2xlarge",
             sagemaker_session=sagemaker_session,
-            role="arn:aws:iam::867991991201:role/test-role-for-sagemaker",
+            role="arn:aws:iam::{YOUR_AWS_ACCOUNT_ID}:role/{SAGEMAKER_ROLE_NAME}",
         )
         sklearn_model.fit({"train": training_data_s3_path})
         print(sklearn_model)

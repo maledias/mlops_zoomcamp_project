@@ -89,7 +89,8 @@ In order to reproduce the project, you will need to fulfill the following requir
 3. In the project root directory, run `make download_data` to download the data directly from Kaggle. This will create a new `data/` directory in your project's root directory.
 4. Setup the development infrastructure
     - IMPORTANT: Make sure that you have a default profile conigured for the AWS CLI, otherwise the following step will not work. 
-    - Edit the `terraform/dev/main.tf` file and edit line 16, to give a name to the S3 Bucket used to store the artifacts generated during the project development. You must follow the S3 Bucket [naming conventions](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).
+    - Open the `terraform/dev/main.tf` file and edit line 16, to give a name to the S3 Bucket used to store the artifacts generated during the project development. You must follow the S3 Bucket [naming conventions](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).
+    - Now, in the same file, edit line 28, to give a name to the IAM Role that will be created.
     - Run `make create_dev_setup`. This will create a new S3 Bucket in your AWS account.
     - Run `make copy_data_to_s3` to copy the data the S3 Bucket just created.
 5. Start the MLFlow server by running `make start_mlflow_server`.
@@ -97,7 +98,10 @@ In order to reproduce the project, you will need to fulfill the following requir
     - IMPORTANT: the command will block your terminal. To run other the next commands, you will need to create a new terminal instance.
 6. Open the jupyter notebook in `notebooks/insurance_cross_sell_prediction.ipynb` and run all cells to create experiments, models, and track it using the MLFlow tracking system and model registry.
     - IMPORTANT: this command will only work if you have run the previous step successfully, because it dependes on the MLFlow server.
-7. Open the `airflow/dags/training_pipeline.py` file and update the 15th line, with the name of the S3 Bucket where the data has been update. (this refers to the Bucket create in step 4)
+7. Update Airflow dag:
+    - Open the `airflow/dags/training_pipeline.py` file and update the 15th line, with the name of the S3 Bucket where the data has been update. (this refers to the Bucket create in step 4)
+    - update the 111th line with the ARN of the IAM role created for sagemaker. This is the role created in step 4. To get the role ARN, you can cd to the `terraform/dev` directory and run `terraform  output -raw sagemaker_role_arn`. The role ARN will have the format: `arn:aws:iam:{YOUR_AWS_ACCOUNT_ID}:role/{ROLE_NAME}`
+    - update the 4th line of the `src/utils/contants.py` file with your role ARN.
 7. Start the Airflow server
     - `cd` to the `airflow` directory and run `astro dev start` to start the Airflow server.
 8. Access the Airflow UI available at 127.0.0.1:8081 and login using the default credentials. Default login: `admin`, default password: `admin`.
@@ -114,7 +118,7 @@ In order to reproduce the project, you will need to fulfill the following requir
     - When the DAG is done, you will need to access the `XCom` of the last task in order to get the S3 path to the model's artifacts. This will be needed in order to deploy the model.
         - Navigate to `Browse` -> `DAG runs`
         - Select the last DAG run
-        - Navigate to `Graph`, then click on the `train_model` task. Click on the `XCom` tab and copy the S3 path for the model artifacts.
+        - Navigate to `Graph`, then click on the `train_model` task. Click on the `XCom` tab and copy the S3 path for the model artifacts. This is the value for the `model_data` key.
 11. Deploy the model. To deploy the model, it is necessary to run its CI/CD pipeline. This is ran using GitHub Actions, meaning that in order for you to deploy the trained model, you will need to set a GitHub repository for your local forked repository.
     - After associating your local repository with a GitHub Repository, the next step is to create repository secrets for your new GitHub repository. The secrets are used to provide AWS credentials to the GitHub runner in order for it to deploy the Model to your AWS account.
         - Follow [these](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) instructions to create the following secrets:
